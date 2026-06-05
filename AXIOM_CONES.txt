@@ -5,8 +5,8 @@ Purpose
 -------
 The PROVEN / PROVEN-CONDITIONAL grades in this artifact rest on the Lean 4
 `#print axioms` output, NOT on a passing `lake build` (a `sorry` compiles).
-This file records the exact command, the source under test, and the expected
-cone output, so the soundness table can be regenerated on a fresh clone.
+This file records the exact command, the source under test, and the cone
+output, so the soundness table can be regenerated on a fresh clone.
 
 Source under test
 -----------------
@@ -24,14 +24,14 @@ How to reproduce
   2. lake build                # expect exit code 0
   3. lake env lean cone_check.lean   # the committed checker (5x #print axioms)
 
-Expected output (TRANSCRIBED from a prior compile; NOT a live capture)
-----------------------------------------------------------------------
+Cone output (CAPTURED live on a clean clone — 2026-06-05)
+---------------------------------------------------------
   (clean cone = {propext, Classical.choice, Quot.sound})
-  'shift_leading_coeff'    depends on axioms: [propext, Classical.choice, Quot.sound]
-  'edge_poly_closed_form'  depends on axioms: [propext, Classical.choice, Quot.sound]
-  'reindex_leading_coeff'  depends on axioms: [propext, Classical.choice, Quot.sound]
-  'xi0_covariance'         depends on axioms: [propext, Classical.choice, Quot.sound]
-  'borelRadius_covariance' depends on axioms:
+  'PcfEdge.shift_leading_coeff'    depends on axioms: [propext, Classical.choice, Quot.sound]
+  'PcfEdge.edge_poly_closed_form'  depends on axioms: [propext, Classical.choice, Quot.sound]
+  'PcfEdge.reindex_leading_coeff'  depends on axioms: [propext, Classical.choice, Quot.sound]
+  'PcfEdge.xi0_covariance'         depends on axioms: [propext, Classical.choice, Quot.sound]
+  'PcfEdge.borelRadius_covariance' depends on axioms:
       [propext, Classical.choice, borelRadius, edge_implies_borel_radius, Quot.sound]
 
 Reading
@@ -43,13 +43,18 @@ Reading
 
 Provenance / honesty note
 -------------------------
-The cone results above were obtained by compiling Basic.lean against the pinned
-rev in a prior working session; they are TRANSCRIBED here, not captured this
-session. The source SHA-256 (CAC02D77...C18DD48A7) WAS recomputed this session
-against the file on disk and matches the value recorded above, so the
-transcribed table refers to the current bytes. The present preparation session's
-sandbox blocked execution of the Lean toolchain, so the #print axioms run was
-NOT repeated here. A fresh `lake env lean cone_check.lean` on a clean clone is
-the REQUIRED final gate before cutting a release tag / minting a DOI; treat the
-table as VERIFIED-in-a-prior-run, pending operator re-confirmation, until that
-gate passes.
+The cone results above were CAPTURED LIVE on 2026-06-05 by running the
+committed checker on a CLEAN CLONE of the committed repository (root-commit
+b7d1c5b), not on a working tree:
+
+    git clone <repo> <tmp>; cd <tmp>
+    lake exe cache get        -> "Completed successfully!"
+    lake build                -> "Build completed successfully (8250 jobs)."
+    lake env lean cone_check.lean  -> the five cones reproduced above, verbatim
+
+The source SHA-256 (CAC02D77...C18DD48A7) was recomputed against the file on
+disk and matches the value recorded above, so the captured table refers to the
+current bytes. No sorryAx appears in any cone; the only non-standard axioms are
+borelRadius and edge_implies_borel_radius (H_edge), present by design in the
+conditional end statement only. This supersedes the earlier "transcribed,
+pending operator re-run" status: the required pre-tag cone gate has PASSED.
