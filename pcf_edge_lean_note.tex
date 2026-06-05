@@ -1,0 +1,449 @@
+\documentclass[11pt]{article}
+
+% ---------------------------------------------------------------------------
+% pcf-edge-lean : peer-review companion note
+% Self-contained; compiles with pdflatex (MiKTeX). No external bibliography.
+% ---------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={A machine-checked Lean 4 / Mathlib formalization of the M9 Newton-edge algebraic core for polynomial continued fractions},
+  pdfauthor={Papanokechi}
+}
+
+\definecolor{leankw}{rgb}{0.10,0.25,0.65}
+\definecolor{leancom}{rgb}{0.30,0.45,0.30}
+\definecolor{codebg}{rgb}{0.97,0.97,0.95}
+
+\lstdefinelanguage{Lean}{
+  morekeywords={theorem,lemma,axiom,def,noncomputable,by,have,calc,rw,exact,
+    open,namespace,end,Type,CommRing,IsDomain,Field,CharZero,Polynomial},
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[n]{/-}{-/},
+  morestring=[b]",
+}
+\lstset{
+  language=Lean,
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{leankw}\bfseries,
+  commentstyle=\color{leancom}\itshape,
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{leankw}{$\hookrightarrow$}\space},
+  columns=fullflexible,
+  frame=single,
+  framesep=4pt,
+  xleftmargin=4pt,
+  showstringspaces=false,
+  literate=
+    {≠}{{${}\neq{}$}}1
+    {≤}{{${}\leq{}$}}1
+    {≥}{{${}\geq{}$}}1
+    {→}{{${}\to{}$}}1
+    {ℝ}{{$\mathbb{R}$}}1
+    {ℕ}{{$\mathbb{N}$}}1
+    {ℤ}{{$\mathbb{Z}$}}1
+    {α}{{$\alpha$}}1
+    {β}{{$\beta$}}1
+    {γ}{{$\gamma$}}1
+    {θ}{{$\theta$}}1
+    {ξ}{{$\xi$}}1
+    {Σ}{{$\Sigma$}}1
+    {∘}{{$\circ$}}1
+    {·}{{$\cdot$}}1
+    {−}{{$-$}}1
+    {₀}{{$_0$}}1
+    {ₖ}{{$_k$}}1
+    {ₙ}{{$_n$}}1
+    {ᵏ}{{$^k$}}1
+    {⁻¹}{{$^{-1}$}}1
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\xizero}{\xi_{0}}
+\newcommand{\cone}{\{\texttt{propext},\,\texttt{Classical.choice},\,\texttt{Quot.sound}\}}
+\newcommand{\Hedge}{\textsf{H\textsubscript{edge}}}
+
+\title{\textbf{A machine-checked Lean 4 / Mathlib formalization of the\\
+M9 Newton-edge algebraic core for polynomial continued fractions}\\[4pt]
+\large (conditional on the analytic edge\,$\Rightarrow$\,Borel-radius step)}
+
+\author{Papanokechi\\
+\small ORCID: \href{https://orcid.org/0009-0000-6192-8273}{0009-0000-6192-8273}}
+
+\date{June 5, 2026 \quad(\texttt{pcf-edge-lean} v0.1.0, draft for review)}
+
+\begin{document}
+\sloppy
+\setlength{\emergencystretch}{3em}
+\maketitle
+
+\begin{abstract}
+\noindent
+We formalize, in Lean~4 / Mathlib, the \emph{purely algebraic, finitary core}
+of the M9 Newton-edge lemma for polynomial continued fractions (PCFs) with unit
+numerator and partial denominator $b(n)=\sum_{k=0}^{d}\beta_k n^k$
+($d\ge 2$, $\beta_d\neq 0$). Four statements are proved with the clean Lean
+axiom cone $\cone$ and zero \texttt{sorry}: (T1) shift-invariance of the leading
+coefficient, $[\theta^d]\,b(\theta+1)=\beta_d$; (T2) the closed form of the
+slope-$1/d$ edge polynomial
+$\chi_d(c)=1+(-1)^{d+1}(\beta_d/d^{d})c^{d}$; (T3a) the
+affine-reindexing coefficient law --- the degree-$d$ coefficient of
+$b\circ(\alpha X+\gamma)$ equals $\alpha^{d}\beta_d$, which is
+$\mathrm{lead}(b\circ\varphi)$ since $\deg=d$ for $\alpha\neq0$, and is
+$\gamma$-independent; and (T3b) the covariance
+$\xizero(\alpha^{d}\beta_d)=\alpha^{-1}\xizero(\beta_d)$ of the
+Borel-singularity radius $\xizero=d/\beta_d^{1/d}$ (the T3b covariance is
+formalized for $\beta_d>0$; the complex root-modulus identity $|c|=\xizero$ is
+\emph{VERIFIED} in computer algebra, not Lean-formalized). The analytic step
+\emph{Newton edge $\Rightarrow$ Borel singularity radius} (Wasow~\S19 sectorial
+existence; Birkhoff--Trjitzinsky Borel summability) is \textbf{out of scope}:
+it is encoded as an explicit, unproved axiom \Hedge{} and is \emph{not}
+discharged. Consequently the Borel-radius end statement is proved
+\emph{conditional on} \Hedge, with that hypothesis visible in its axiom cone by
+design. This promotes the edge lemma from the source grade
+``symbolically derived'' (a hand induction corroborated by computer algebra) to
+machine-checked \emph{proven} for its finitary core, while leaving the analytic
+input honestly labeled. The toolchain is pinned (Lean
+\texttt{v4.29.0}; Mathlib rev \texttt{8a17838\ldots}); all axiom cones are
+reproducible by \texttt{\#print axioms}. This note is a companion to the M9
+deposit (concept DOI \texttt{10.5281/zenodo.20542161}).
+\end{abstract}
+
+\paragraph{Epistemic-status legend (used throughout).}
+\textbf{PROVEN} $=$ the Lean \texttt{\#print axioms} cone is contained in
+$\cone$ \emph{and} contains no \texttt{sorryAx}, with zero
+\texttt{sorry}/\texttt{admit}/\texttt{native\_decide} in source.
+\textbf{PROVEN CONDITIONAL on \Hedge} $=$ otherwise clean, but the cone
+additionally contains the explicit axioms \texttt{edge\_implies\_borel\_radius}
+and \texttt{borelRadius}. \textbf{VERIFIED} $=$ checked numerically/symbolically
+(computer algebra) but not in Lean. \textbf{CITED-CONDITIONAL} $=$ relied upon
+from the literature and not discharged here. These four grades are kept
+distinct and the source comments match the realized axiom cones.
+
+\section{Scope and the conditional-core discipline}
+
+For a PCF with unit numerator and partial denominator
+$b(n)=\sum_{k=0}^{d}\beta_k n^{k}$, the convergent denominators $Q_n$ obey the
+Wallis recurrence $Q_n=b(n)Q_{n-1}+Q_{n-2}$. The generating function
+$F(z)=\sum_n Q_n z^{n}$ is annihilated by
+\begin{equation}\label{eq:operator}
+  P \;=\; 1 \;-\; z\,b(\theta+1)\;-\;z^{2},
+  \qquad \theta=z\,\frac{d}{dz}\ \ (\theta\,z^{n}=n\,z^{n}).
+\end{equation}
+At $z=0$ the Newton polygon of $P$ has a single dominant edge of slope $1/d$;
+the WKB/edge balance on that edge produces the edge polynomial $\chi_d$, whose
+root modulus is the Borel-singularity radius $\xizero$. The passage
+\emph{edge $\Rightarrow$ analytic Borel radius} is classical analysis
+(Wasow~\S19; Birkhoff--Trjitzinsky). 
+
+This note deliberately separates two things that are easy to conflate:
+\begin{itemize}\setlength\itemsep{2pt}
+  \item the \emph{finitary algebra} underneath the edge --- shift-invariance,
+        the closed form of $\chi_d$, and the affine leading-coefficient law ---
+        which is purely a statement about polynomials and real powers, and is
+        formalized here as PROVEN;
+  \item the \emph{analytic} edge\,$\Rightarrow$\,radius implication, which is
+        \emph{not} formalized and is taken as the explicit hypothesis \Hedge.
+\end{itemize}
+This is the ``conditional-core'' pattern: formalize the finitary core to a clean
+axiom cone, and take the hard analytic fact as a clearly-labeled hypothesis.
+The end statement is then honestly \emph{``$\xizero$ covariance, conditional on
+\Hedge''}, never silently ``$\xizero$ verified''.
+
+\section{The four proven statements}
+
+All four are in \texttt{PcfEdge/Basic.lean}. We give the exact Lean statements
+(verbatim) followed by the mathematical content.
+
+\subsection*{T1 --- shift-invariance of the leading coefficient (gate G1)}
+\begin{lstlisting}
+theorem shift_leading_coeff {R : Type*} [CommRing R] [IsDomain R] (p : R[X]) :
+    (p.comp (X + C 1)).coeff p.natDegree = p.leadingCoeff
+\end{lstlisting}
+Composition with $X+1$ preserves the top coefficient; equivalently
+$[\theta^{d}]\,b(\theta+1)=\beta_d$. (The domain hypothesis is needed because
+the underlying Mathlib lemmas \texttt{natDegree\_comp} / \texttt{leadingCoeff\_comp}
+require \texttt{NoZeroDivisors}.)
+
+\subsection*{T2 --- edge polynomial closed form (gate G2)}
+\begin{lstlisting}
+theorem edge_poly_closed_form {R : Type*} [Field R] [CharZero R] (d : ℕ) (_hd : d ≠ 0)
+    (βd c : R) :
+    1 - βd * (-(c / (d : R))) ^ d
+      = 1 + (-1) ^ (d + 1) * (βd / (d : R) ^ d) * c ^ d
+\end{lstlisting}
+With $a_{00}=1$ and edge coefficient $a_{1,d}=-\beta_d$, the edge balance
+$a_{00}+a_{1,d}\,(z\,u^{d})=0$ gives
+\[
+  \chi_d(c)\;=\;1-\beta_d\bigl(-\tfrac{c}{d}\bigr)^{d}
+  \;=\;1+(-1)^{d+1}\frac{\beta_d}{d^{d}}\,c^{d},
+\]
+proved $d$-free: the lemma is stated for general $d$ with the single hypothesis
+$d\neq 0$ (equivalently $d\ge 1$ over $\mathbb{N}$). The manipulation
+$\bigl(-(c/d)\bigr)^{d}=(-1)^{d}c^{d}/d^{d}$ is valid for every $d\ge1$ in
+characteristic~$0$.
+
+\subsection*{T3a --- affine-reindexing leading-coefficient law (gate G4)}
+\begin{lstlisting}
+theorem reindex_leading_coeff {R : Type*} [Field R] (p : R[X]) {d : ℕ}
+    (hd : p.natDegree = d) (α γ : R) (hα : α ≠ 0) :
+    (p.comp (C α * X + C γ)).coeff d = α ^ d * p.leadingCoeff
+\end{lstlisting}
+The Lean conclusion is literally about the \emph{degree-$d$ coefficient}
+$[\,\cdot\,]_d$, written \texttt{.coeff d}, \emph{not} \texttt{.leadingCoeff}.
+The two coincide here precisely because $\deg(b\circ\varphi)=d$ whenever
+$\alpha\neq0$: the proof first establishes
+$\texttt{natDegree}(b\circ\varphi)=d$ (via \texttt{natDegree\_comp} and
+$\deg(\alpha X+\gamma)=1$), so the degree-$d$ coefficient \emph{is} the leading
+coefficient of $b\circ\varphi$. Hence
+$\mathrm{lead}(b\circ\varphi)=\alpha^{d}\beta_d$, \emph{independent of
+$\gamma$}.
+
+\subsection*{T3b --- the $\xizero$ covariance (gate G4)}
+\begin{lstlisting}
+noncomputable def xi0val (d : ℕ) (βd : ℝ) : ℝ := (d : ℝ) / βd ^ ((1 : ℝ) / (d : ℝ))
+
+theorem xi0_covariance (d : ℕ) (hd : d ≠ 0) (α βd : ℝ) (hα : 0 < α) (hβ : 0 < βd) :
+    xi0val d (α ^ d * βd) = α⁻¹ * xi0val d βd
+\end{lstlisting}
+With $\xizero(\beta_d)=d/\beta_d^{1/d}$ (real \texttt{rpow}), the rescaling
+$\beta_d\mapsto\alpha^{d}\beta_d$ scales $\xizero$ by $\alpha^{-1}$.
+\textbf{Scope (corrected).} This is an identity about the \emph{real positive
+value} $\xizero$ as a function of the leading coefficient; it asserts
+\emph{nothing} about the roots of $\chi_d$. The root-modulus fact G3 --- that
+every complex root $c$ of $\chi_d$ has $|c|=\xizero$ --- is \emph{VERIFIED} in
+computer algebra (\S5) but is \emph{not} formalized in Lean (\S6). The numerical
+value of $\xizero$ does equal that common root modulus, but
+\texttt{xi0\_covariance} captures only the covariance of $\xizero$, not the
+root-modulus statement.
+
+\textbf{Sign regime ($\beta_d>0$).} T3b carries the hypotheses
+$\alpha>0$ and $\beta_d>0$: real \texttt{rpow} is well-behaved (and the
+\texttt{Real.mul\_rpow}/\texttt{Real.rpow\_mul} step valid) only for nonnegative
+bases. The abstract's object-level hypothesis on a PCF is $\beta_d\neq0$, which
+is strictly weaker. \textbf{The formalized covariance therefore covers
+$\beta_d>0$ only}; the case $\beta_d<0$ is outside the Lean scope. This is not a
+gap in the mathematics but in what is formalized: for $\beta_d<0$ the relevant
+object is the common \emph{complex} root modulus
+$|c|=d/|\beta_d|^{1/d}$ (real \texttt{rpow} of a negative base is defined in
+Mathlib but is not the analytic continuation one wants here), which is exactly
+the complex root-modulus fact G3 --- VERIFIED in computer algebra (for
+$\beta_d<0$ the modulus $|c|=d/|\beta_d|^{1/d}$ was re-checked here for
+$d=2..7$, all $d$ roots to $30$ digits), not Lean-formalized. A referee asking
+``what happens for negative leading coefficient?'' is answered: it is handled by
+the VERIFIED complex-modulus G3, deliberately not by the PROVEN
+real-\texttt{rpow} T3b. This $\beta_d>0$ regime is \emph{inherited by the
+conditional end statement}: \texttt{borelRadius\_covariance} carries
+\texttt{hlc : 0 < p.leadingCoeff} (i.e.\ $\beta_d>0$), which is exactly the
+hypothesis that both its second \texttt{edge\_implies\_borel\_radius} application
+(on $b\circ\varphi$, whose leading coefficient $\alpha^{d}\beta_d$ must be
+positive) and its \texttt{xi0\_covariance} call require. So for a reader who
+cares only about the end statement, $\beta_d>0$ bites precisely there, through
+\texttt{hlc}; it is load-bearing, not decorative.
+
+\section{The \Hedge{} axiom and the conditional end statement}
+
+The analytic input is isolated as two explicit declarations, so that anything
+depending on it is flagged in its axiom cone:
+\begin{lstlisting}
+-- ξ₀ read off a real polynomial: the same real function as in T3b.
+noncomputable def xi0 (p : ℝ[X]) : ℝ := xi0val p.natDegree p.leadingCoeff
+
+axiom borelRadius : ℝ[X] → ℝ                    -- OPAQUE; not constructed
+
+axiom edge_implies_borel_radius (p : ℝ[X]) (hd : 2 ≤ p.natDegree)
+    (hlc : 0 < p.leadingCoeff) : borelRadius p = xi0 p   -- this is H_edge
+\end{lstlisting}
+Here $\texttt{xi0 } p$ is \emph{defined} as
+$\texttt{xi0val}(\,p.\texttt{natDegree},\,p.\texttt{leadingCoeff}\,)$, i.e.\ the
+same real function $\xizero=d/\beta_d^{1/d}$ from T3b, now evaluated at the
+degree and leading coefficient of $p$; this is the only place $\xizero$ enters
+the polynomial-level statement. $\texttt{borelRadius}$ is the analytic
+Borel-singularity radius, left \emph{opaque} (we do not construct it).
+$\texttt{edge\_implies\_borel\_radius}$ is exactly \Hedge: for a degree-$\ge2$
+denominator with positive leading coefficient, the analytic radius equals the
+algebraically computed $\xizero$. It is \emph{not} proved. The conditional
+theorem is then
+\begin{lstlisting}
+theorem borelRadius_covariance (p : ℝ[X]) (α γ : ℝ) (hd : 2 ≤ p.natDegree)
+    (hlc : 0 < p.leadingCoeff) (hα : 0 < α) :
+    borelRadius (p.comp (C α * X + C γ)) = α⁻¹ * borelRadius p
+\end{lstlisting}
+i.e.\ $\xizero(b\circ\varphi)=\alpha^{-1}\xizero(b)$ for $\varphi(n)=\alpha n+\gamma$,
+$\alpha>0$ --- \textbf{proven conditional on \Hedge}. Its proof composes
+\Hedge{} (applied to $b$ and to $b\circ\varphi$) with the purely algebraic T3a
+and T3b; no analytic content is smuggled in.
+
+\section{Soundness: axiom cones, build, toolchain}
+
+The decisive check, under the project's discipline, is the axiom cone, not a
+green build (a \texttt{sorry} compiles). The cones below were obtained from
+\texttt{\#print axioms} by compiling against the pinned toolchain.
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{6.6cm}c@{}}
+\toprule
+\textbf{Declaration} & \textbf{Axiom cone} & \textbf{Status}\\
+\midrule
+\texttt{shift\_leading\_coeff}    & $\cone$ & PROVEN\\
+\texttt{edge\_poly\_closed\_form}  & $\cone$ & PROVEN\\
+\texttt{reindex\_leading\_coeff}   & $\cone$ & PROVEN\\
+\texttt{xi0\_covariance}           & $\cone$ & PROVEN\\
+\texttt{borelRadius\_covariance}   & $\cone$ $\cup\,\{\texttt{borelRadius},$ $\texttt{edge\_implies\_borel\_radius}\}$ & COND.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+The first four cones are \emph{exactly} the clean set, with no
+\texttt{sorryAx}. The end statement's cone additionally exposes the two
+\Hedge{} axioms --- expected and correct, and the precise sense in which the
+analytic claim remains undischarged.
+
+\paragraph{Build / hygiene.}
+\texttt{lake build} completes with exit code~0. The sources contain zero
+\texttt{sorry}, \texttt{sorryAx}, \texttt{admit}, or \texttt{native\_decide}
+(the only textual occurrence of ``sorryAx'' is inside a documentation comment).
+
+\paragraph{Toolchain (pinned, reproducible).}
+Lean \texttt{leanprover/lean4:v4.29.0}; Mathlib rev
+\texttt{8a178386ffc0f5fef0}\allowbreak\texttt{b77738bb5449d50efeea95} (inputRev \texttt{v4.29.0}),
+committed via \texttt{lake-manifest.json}. The Mathlib lemmas relied upon
+(each \texttt{\#check}-confirmed in the installed source) include
+\texttt{natDegree\_comp}, \texttt{natDegree\_X\_add\_C}, \texttt{leadingCoeff\_comp},
+\texttt{monic\_X\_add\_C}, \texttt{natDegree\_linear}, \texttt{leadingCoeff\_linear},
+\texttt{Real.rpow\_natCast}, \texttt{Real.mul\_rpow}, \texttt{Real.rpow\_mul},
+and \texttt{Real.rpow\_one}; no lemma name was used from memory.
+
+\section{Numeric/symbolic ground truth (VERIFIED, gate G1--G4)}
+
+Before formalizing, the load-bearing identities were checked in computer
+algebra; all four gates were \emph{re-run in this session} (sympy for the
+identities; \texttt{mpmath} for the G3 root moduli) for $d=2..6$, with $d=7$
+spot-checks, so the Lean \emph{statements} match a verified gate:
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}clc@{}}
+\toprule
+\textbf{Gate} & \textbf{Statement} & \textbf{Checked}\\
+\midrule
+G1 & $[\theta^{d}]\,b(\theta+1)=\beta_d$ & $d=2..6$\\
+G2 & $1-\beta_d(-(c/d))^{d}=1+(-1)^{d+1}(\beta_d/d^{d})c^{d}$ & $d=2..6$\\
+G3 & every root $c$ of $\chi_d$ has $|c|=d/\beta_d^{1/d}=\xizero$ & $d=2..6$\\
+G4 & $\mathrm{lead}(b\circ\varphi)=\alpha^{d}\beta_d$;\ \ $\xizero(b\circ\varphi)=\alpha^{-1}\xizero(b)$ & $d=2..6$\\
+\bottomrule
+\end{tabular}
+\end{center}
+G3 at $d=3$ in particular settles, numerically, the previously-deferred direct
+cubic check (re-confirmed here for $d=2..6$, $d=7$ spot-checked, by computing
+all $d$ complex roots and verifying $|c|=\xizero$ to $30$ digits). \textbf{G3 is
+deliberately \emph{not} reflected on the Lean side}: T3b is the covariance of the
+real value $\xizero$, not a root-modulus statement (\S6). All four gates are
+\emph{VERIFIED}, a grade strictly weaker than the PROVEN Lean core and recorded
+as such.
+
+\section{What is \emph{not} proved (scope and ``could not confirm'')}
+
+\begin{itemize}\setlength\itemsep{3pt}
+  \item \textbf{The analytic \Hedge.} The edge\,$\Rightarrow$\,Borel-radius
+        implication (Wasow~\S19 sectorial existence; Birkhoff--Trjitzinsky
+        Borel summability) is \emph{cited-conditional}: encoded as an axiom,
+        not formalized. No analysis/asymptotics content of Mathlib was used to
+        discharge it. This is the single load-bearing analytic assumption.
+  \item \textbf{Full complex root-set of $\chi_d$ (G3).} We do \emph{not}
+        formalize ``every complex root of $\chi_d$ has modulus $\xizero$'' in
+        Lean at all --- it is \emph{VERIFIED} only in computer algebra. T3b
+        (\texttt{xi0\_covariance}) formalizes the covariance of the \emph{real
+        value} $\xizero$, which is a strictly different statement and must not be
+        read as capturing G3. This is a deliberate scope choice, not a hidden
+        claim.
+  \item \textbf{No $d\ge 7$ or all-$d$ analytic claim.} The VERIFIED gate is
+        $d\le 6$; the PROVEN T1--T3 are $d$-free as algebraic identities, but
+        the analytic $\xizero$ interpretation rests on \Hedge{} regardless of
+        $d$.
+  \item \textbf{Could-not-confirm list:} empty for Mathlib lemma names (every
+        lemma used was located and \texttt{\#check}ed in the installed source).
+\end{itemize}
+
+\paragraph{Honest one-line claim.}
+\emph{The finitary algebra of the M9 Newton edge --- shift-invariance, the
+closed form of $\chi_d$, the $\gamma$-free affine leading-coefficient law, and
+the $\alpha^{-1}$ covariance of $\xizero=d/\beta_d^{1/d}$ --- is machine-checked
+PROVEN in Lean~4 with a clean axiom cone; that the analytic Borel radius equals
+$\xizero$ and inherits the covariance is PROVEN only conditional on the explicit,
+unproved hypothesis \Hedge.}
+
+\section{Reproducibility}
+
+The axiom-cone table in \S4 is the load-bearing soundness claim, and --- as a
+\texttt{sorry} compiles --- it is established only by an actual
+\texttt{\#print axioms} run, not by a green build. To reproduce it exactly:
+\begin{enumerate}\setlength\itemsep{2pt}
+  \item Clone the repository and use the pinned \texttt{lean-toolchain}
+        (\texttt{v4.29.0}) and \texttt{lake-manifest.json}.
+  \item \texttt{lake exe cache get} (prebuilt Mathlib oleans), then
+        \texttt{lake build} (exit code~0).
+  \item Run the committed checker against the pinned toolchain:
+        \texttt{lake env lean cone\_check.lean}. It imports \texttt{PcfEdge} and
+        prints \texttt{\#print axioms} for all five declarations. The output
+        below is \textbf{transcribed} from a prior-session compile and is
+        \textbf{not} a live capture from the present preparation session; it is
+        the value the operator's re-run is expected to reproduce:
+\begin{lstlisting}
+-- EXPECTED (transcribed from a prior compile; confirm via the run above).
+-- NOT a live capture from the preparation session.
+'shift_leading_coeff'    depends on axioms: [propext, Classical.choice, Quot.sound]
+'edge_poly_closed_form'  depends on axioms: [propext, Classical.choice, Quot.sound]
+'reindex_leading_coeff'  depends on axioms: [propext, Classical.choice, Quot.sound]
+'xi0_covariance'         depends on axioms: [propext, Classical.choice, Quot.sound]
+'borelRadius_covariance' depends on axioms:
+  [propext, Classical.choice, borelRadius, edge_implies_borel_radius, Quot.sound]
+\end{lstlisting}
+        If reproduced, this is exactly the \S4 table: the first four cones are the
+        clean set, and only the conditional end statement exposes the two
+        \Hedge{} axioms.
+\end{enumerate}
+\textbf{Provenance of the \S4 cones (read this with the table).} The cones were
+obtained by compiling \texttt{PcfEdge/Basic.lean} (\textsc{sha-256}
+\texttt{cac02d77\ldots1c8dd48a7}) against Mathlib rev \texttt{8a17838\ldots} in a
+\emph{prior} working session. The present session did \emph{not} re-run the
+check --- Lean-toolchain execution was unavailable in its sandbox --- but it
+\emph{did} re-verify, this session, that the source SHA-256 is unchanged, so the
+transcribed table still refers to the bytes on disk. Until a fresh
+\texttt{lake env lean cone\_check.lean} is run on a clean clone, the \S4 table
+should be read as \emph{VERIFIED in a prior run and pending operator
+re-confirmation}, not as freshly captured. That re-run is the \textbf{required}
+final gate before tagging a release or minting a DOI.
+
+\paragraph{Relation to the deposited record.}
+This artifact is a companion to the M9 preprint (concept DOI
+\texttt{10.5281/zenodo.20542161}), whose own statement notes that ``there is no
+Lean formalization here'' and that the general-$k$ step is ``a hand induction
+($k=0..8$ machine-checked in sympy)''. The present development closes precisely
+that gap for the finitary core, while preserving the paper's
+cited-conditional treatment of the analytic edge\,$\Rightarrow$\,radius step.
+
+\paragraph{AI-assistance disclosure.}
+Prepared with AI assistance (GitHub Copilot; Anthropic Claude) for Lean
+drafting, computer-algebra verification, and manuscript preparation. All axiom
+cones were obtained by compiling against the pinned toolchain; the author takes
+responsibility for the content and for the placement of each claim within the
+four-grade epistemic partition.
+
+\end{document}

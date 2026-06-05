@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+type: software
+title: "pcf-edge-lean: A machine-checked Lean 4 / Mathlib formalization of the M9 Newton-edge algebraic core for polynomial continued fractions (conditional on H_edge)"
+abstract: >-
+  Lean 4 / Mathlib formalization of the purely algebraic / finitary core of
+  the M9 Newton-edge lemma for polynomial continued fractions (PCFs) with
+  unit numerator and partial denominator b(n) = sum_{k=0}^d beta_k n^k. Four
+  theorems are PROVEN with the clean axiom cone {propext, Classical.choice,
+  Quot.sound} and zero sorry: shift-invariance of the leading coefficient
+  ([theta^d] b(theta+1) = beta_d), the closed form of the slope-1/d edge
+  polynomial chi_d(c) = 1 + (-1)^(d+1)(beta_d/d^d)c^d, the affine-reindexing
+  leading-coefficient law (gamma-free), and the xi0 = d/beta_d^{1/d}
+  covariance xi0(b o phi) = alpha^{-1} xi0(b). The analytic edge => Borel
+  singularity radius step (Wasow section 19 / Birkhoff-Trjitzinsky) is OUT OF
+  SCOPE and is encoded as an explicit, unproved axiom H_edge; the Borel-radius
+  covariance end statement is therefore PROVEN CONDITIONAL on H_edge, with the
+  hypothesis visible in its axiom cone by design.
+authors:
+  # ORCID source-verified from the ORCID registry page (papanokechi papanokechi).
+  - family-names: "Papanokechi"
+    orcid: "https://orcid.org/0009-0000-6192-8273"
+version: "0.1.0"
+date-released: "2026-06-05"   # FLAG(operator): set to the actual tag date
+license: Apache-2.0
+repository-code: "https://github.com/papanokechi/pcf-edge-lean"  # FLAG(operator): create repo / confirm URL
+keywords:
+  - "polynomial continued fractions"
+  - "Newton polygon"
+  - "Borel singularity radius"
+  - "Lean 4"
+  - "Mathlib"
+  - "formal verification"
+  - "SIARC"
+  - "conditional-core formalization"
+references:
+  # FLAG(operator): set DOI to the M9 concept DOI (the preprint this supplements).
+  - type: article
+    title: "M9: xi0 Affine-Reindexing Covariance for Polynomial Continued Fractions — an In-Repo Symbolic-in-d Discharge of the Newton-Edge Lemma"
+    authors:
+      - family-names: "Papanokechi"
+    doi: "10.5281/zenodo.20542161"   # M9 concept DOI (cite-all, source-verified)
+    year: 2026

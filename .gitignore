@@ -1,0 +1,9 @@
+/.lake/
+/build/
+*.olean
+*.ilean
+*.c
+/lakefile.olean
+
+# local commit-message source (not a deposit artifact)
+COMMIT_MSG.txt

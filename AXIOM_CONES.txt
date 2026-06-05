@@ -1,0 +1,55 @@
+pcf-edge-lean — Axiom-cone reproducibility record
+==================================================
+
+Purpose
+-------
+The PROVEN / PROVEN-CONDITIONAL grades in this artifact rest on the Lean 4
+`#print axioms` output, NOT on a passing `lake build` (a `sorry` compiles).
+This file records the exact command, the source under test, and the expected
+cone output, so the soundness table can be regenerated on a fresh clone.
+
+Source under test
+-----------------
+  File   : PcfEdge/Basic.lean
+  SHA-256: CAC02D77A4484293057EB1DB8B12C0A73F93242B70E74C2C081A041C18DD48A7
+
+Toolchain (pinned, from lean-toolchain / lake-manifest.json)
+------------------------------------------------------------
+  Lean   : leanprover/lean4:v4.29.0
+  Mathlib: rev 8a178386ffc0f5fef0b77738bb5449d50efeea95 (inputRev v4.29.0)
+
+How to reproduce
+----------------
+  1. lake exe cache get        # pull prebuilt Mathlib oleans
+  2. lake build                # expect exit code 0
+  3. lake env lean cone_check.lean   # the committed checker (5x #print axioms)
+
+Expected output (TRANSCRIBED from a prior compile; NOT a live capture)
+----------------------------------------------------------------------
+  (clean cone = {propext, Classical.choice, Quot.sound})
+  'shift_leading_coeff'    depends on axioms: [propext, Classical.choice, Quot.sound]
+  'edge_poly_closed_form'  depends on axioms: [propext, Classical.choice, Quot.sound]
+  'reindex_leading_coeff'  depends on axioms: [propext, Classical.choice, Quot.sound]
+  'xi0_covariance'         depends on axioms: [propext, Classical.choice, Quot.sound]
+  'borelRadius_covariance' depends on axioms:
+      [propext, Classical.choice, borelRadius, edge_implies_borel_radius, Quot.sound]
+
+Reading
+-------
+  * T1..T3b (first four): clean cone, no sorryAx  -> PROVEN.
+  * borelRadius_covariance: additionally exposes the two H_edge axioms
+    (borelRadius, edge_implies_borel_radius) -> PROVEN CONDITIONAL on H_edge,
+    by design. No sorryAx.
+
+Provenance / honesty note
+-------------------------
+The cone results above were obtained by compiling Basic.lean against the pinned
+rev in a prior working session; they are TRANSCRIBED here, not captured this
+session. The source SHA-256 (CAC02D77...C18DD48A7) WAS recomputed this session
+against the file on disk and matches the value recorded above, so the
+transcribed table refers to the current bytes. The present preparation session's
+sandbox blocked execution of the Lean toolchain, so the #print axioms run was
+NOT repeated here. A fresh `lake env lean cone_check.lean` on a clean clone is
+the REQUIRED final gate before cutting a release tag / minting a DOI; treat the
+table as VERIFIED-in-a-prior-run, pending operator re-confirmation, until that
+gate passes.

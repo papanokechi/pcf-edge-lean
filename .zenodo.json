@@ -1,0 +1,33 @@
+{
+  "upload_type": "software",
+  "title": "pcf-edge-lean: A machine-checked Lean 4 / Mathlib formalization of the M9 Newton-edge algebraic core for polynomial continued fractions (conditional on H_edge)",
+  "version": "0.1.0",
+  "language": "eng",
+  "license": "Apache-2.0",
+  "creators": [
+    {
+      "name": "Papanokechi",
+      "orcid": "0009-0000-6192-8273"
+    }
+  ],
+  "description": "<p>Lean 4 / Mathlib formalization of the <strong>purely algebraic / finitary core</strong> of the M9 Newton-edge lemma for polynomial continued fractions (PCFs) with unit numerator and partial denominator <em>b(n) = &Sigma;<sub>k=0</sub><sup>d</sup> &beta;<sub>k</sub> n<sup>k</sup></em> (degree d &ge; 2, &beta;<sub>d</sub> &ne; 0). It promotes the edge lemma from <em>symbolically derived</em> (sympy; hand induction) to <strong>machine-checked PROVEN</strong> for its finitary core, under the SIARC conditional-core pattern.</p><p><strong>PROVEN</strong> (axiom cone exactly {propext, Classical.choice, Quot.sound}; zero sorry):</p><ul><li><code>shift_leading_coeff</code> (T1): composition with X+1 preserves the leading coefficient, i.e. [&theta;<sup>d</sup>] b(&theta;+1) = &beta;<sub>d</sub>.</li><li><code>edge_poly_closed_form</code> (T2): 1 &minus; &beta;<sub>d</sub>(&minus;(c/d))<sup>d</sup> = 1 + (&minus;1)<sup>d+1</sup>(&beta;<sub>d</sub>/d<sup>d</sup>)c<sup>d</sup>, stated d-free.</li><li><code>reindex_leading_coeff</code> (T3a): lead(b &compfn; (&alpha;X+&gamma;)) = &alpha;<sup>d</sup>&middot;&beta;<sub>d</sub> (&gamma;-independent).</li><li><code>xi0_covariance</code> (T3b): with &xi;<sub>0</sub> = d/&beta;<sub>d</sub><sup>1/d</sup> (real rpow), &xi;<sub>0</sub>(&alpha;<sup>d</sup>&beta;<sub>d</sub>) = &alpha;<sup>&minus;1</sup>&xi;<sub>0</sub>(&beta;<sub>d</sub>).</li></ul><p><strong>PROVEN CONDITIONAL on H_edge</strong> (cone additionally contains the explicit axioms <code>borelRadius</code> and <code>edge_implies_borel_radius</code>): <code>borelRadius_covariance</code> &mdash; the analytic Borel singularity radius transforms as &xi;<sub>0</sub>(b&compfn;&phi;) = &alpha;<sup>&minus;1</sup>&xi;<sub>0</sub>(b) for &phi;(n)=&alpha;n+&gamma;, &alpha;&gt;0.</p><p><strong>Scope and epistemic honesty.</strong> The analytic step <em>Newton edge &rArr; Borel singularity radius</em> (Wasow &sect;19 sectorial existence; Birkhoff&ndash;Trjitzinsky Borel summability) is OUT OF SCOPE and is encoded as an explicit, unproved axiom <code>edge_implies_borel_radius</code> (H_edge); it is NOT discharged here, and it appears in the axiom cone of the conditional end statement by design. The full complex root-set of &chi;<sub>d</sub> is not formalized; the root-modulus fact G3 is captured for the real positive modulus via the rpow identity T3b. &quot;PROVEN&quot; here means a clean Lean axiom cone, strictly stronger than the source M9 grade &quot;symbolically derived&quot;; the conditional end statement is strictly weaker than its PROVEN core and is labeled as such.</p><p><strong>Toolchain (pinned):</strong> Lean leanprover/lean4:v4.29.0; Mathlib rev 8a178386ffc0f5fef0b77738bb5449d50efeea95 (inputRev v4.29.0), committed via lake-manifest.json. Reproduce the axiom cones by importing <code>PcfEdge</code> and running <code>#print axioms</code> on the five declarations.</p>",
+  "keywords": [
+    "polynomial continued fractions",
+    "Newton polygon",
+    "Borel singularity radius",
+    "Lean 4",
+    "Mathlib",
+    "formal verification",
+    "conditional-core formalization",
+    "SIARC"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "10.5281/zenodo.20542161",
+      "scheme": "doi",
+      "resource_type": "publication-preprint"
+    }
+  ],
+  "notes": "ORCID (0009-0000-6192-8273) and the M9 concept DOI (10.5281/zenodo.20542161, cite-all) are source-verified. FLAG(operator): confirm the repository URL github.com/papanokechi/pcf-edge-lean exists before tagging, and set the deposit/tag date. Apache-2.0 chosen per the project convention for Lean/Mathlib-adjacent code. The M9 version-1.0 DOI is 10.5281/zenodo.20542162; isSupplementTo targets the concept DOI so the link survives re-versioning."
+}
